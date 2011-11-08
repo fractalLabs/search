@@ -4,6 +4,10 @@
       [clojure.contrib.string :only [join]]
       fm.namespaces))
 
+(defn reggex-fn
+  "crea el reggex para buscar en donde se usa una funcion"
+  [fname]
+  (re-pattern (str "(\\(|\\/)" (safe-pattern fname) "[ \n]+")))
 
 (defn define-x?
   "Revisa si esta definido x en el filename
@@ -40,10 +44,10 @@
   "Busca si se usa una funcion en un ns. true si esta, false si no.
   -f lista las  funciones donde se usa"
   ([function namespace]
-   (re-find (re-pattern (str "\\(" (safe-pattern function) "[ \n]+")) (join "\n\n" (source-functions namespace))))
+   (re-find (reggex-fn function) (join "\n\n" (source-functions namespace))))
   ([function namespace opt]
    (case opt
-     "-f" [namespace (map #(second (re-seq #"[^ \n]+" %)) (filter #(re-find (re-pattern (str "\\(" (safe-pattern function) "[ \n]+")) %) (source-functions namespace)))]
+     "-f" [namespace (map #(second (re-seq #"[^ \n]+" %)) (filter #(re-find (reggex-fn function) %) (source-functions namespace)))]
      (use-fn? function namespace))))
 
 
